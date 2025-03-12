@@ -9,23 +9,43 @@ class RecordAddress(ResourceModel):
     """Represents an address associated with an Accela record."""
 
     street_name: str
-    street_number: str
+    street_start: str
     city: str
     state: str
     postal_code: str
-    country: Optional[str] = None
+    county: str
+    street_suffix: str
+    id: str
+    is_primary: bool
     raw_json: Dict[str, Any] = field(default_factory=dict)
 
     @classmethod
     def from_json(cls, data: Dict[str, Any]) -> "RecordAddress":
         """Create a RecordAddress instance from API response data."""
+        # Handle nested objects like state and streetSuffix
+        state = data.get("state", {})
+        state_value = state.get("value", "") if isinstance(state, dict) else state
+
+        street_suffix = data.get("streetSuffix", {})
+        street_suffix_value = (
+            street_suffix.get("value", "")
+            if isinstance(street_suffix, dict)
+            else street_suffix
+        )
+
+        # Convert isPrimary from "Y"/"N" to boolean
+        is_primary = data.get("isPrimary", "N") == "Y"
+
         return cls(
+            id=str(data.get("id", "")),
             street_name=data.get("streetName", ""),
-            street_number=data.get("streetStart", ""),
+            street_start=str(data.get("streetStart", "")),
             city=data.get("city", ""),
-            state=data.get("state", ""),
+            state=state_value,
             postal_code=data.get("postalCode", ""),
-            country=data.get("country", None),
+            county=data.get("county", ""),
+            street_suffix=street_suffix_value,
+            is_primary=is_primary,
             raw_json=data,
         )
 
