@@ -92,4 +92,4 @@ class Records(BaseResource):
         """
         url = f"{self.client.BASE_URL}/records/{record_id}"
         result = self._get(url)
-        return Record.from_json(result["result"])
+        return Record.from_json(result["result"][0])
