@@ -1,4 +1,5 @@
-from dataclasses import dataclass, field
+import json
+from dataclasses import asdict, dataclass, field
 from typing import Any, Dict, Generic, Iterator, List, Optional, Type, TypeVar
 
 import requests
@@ -11,8 +12,21 @@ class ResourceModel:
 
     @classmethod
     def from_json(cls, data: Dict[str, Any]):
-        """Create a model instance from API response data."""
         raise NotImplementedError("Subclasses must implement from_json")
+
+    def to_dict(self) -> Dict[str, Any]:
+        result = {}
+        for key, value in asdict(self).items():
+            if key != "raw_json":
+                result[key] = value
+        return result
+
+    def to_json(self, pretty: bool = False) -> str:
+        indent = 2 if pretty else None
+        return json.dumps(self.to_dict(), indent=indent, default=str)
+
+    def __str__(self) -> str:
+        return self.to_json(pretty=False)
 
 
 @dataclass
@@ -54,8 +68,26 @@ class ListResponse(Generic[T]):
             yield from items
 
     def __iter__(self) -> Iterator[T]:
-        """Make the object iterable, returning just the current page of data."""
         return iter(self.data)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "data": [
+                item.to_dict() if hasattr(item, "to_dict") else item
+                for item in self.data
+            ],
+            "has_more": self.has_more,
+            "offset": self.offset,
+            "limit": self.limit,
+            "total": self.total,
+        }
+
+    def to_json(self, pretty: bool = False) -> str:
+        indent = 2 if pretty else None
+        return json.dumps(self.to_dict(), indent=indent, default=str)
+
+    def __str__(self) -> str:
+        return f"ListResponse(total={self.total}, offset={self.offset}, limit={self.limit}, has_more={self.has_more})"
 
 
 class BaseResource:
