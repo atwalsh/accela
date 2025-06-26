@@ -114,6 +114,25 @@ class BaseResource:
         response.raise_for_status()
         return response.json()
 
+    def _get_binary(
+        self, url: str, params: Optional[Dict[str, Any]] = None
+    ) -> requests.Response:
+        """Make a GET request that returns binary content.
+
+        Args:
+            url: The API endpoint URL
+            params: Optional query parameters
+
+        Returns:
+            The raw Response object for binary content access
+
+        Raises:
+            requests.HTTPError: If the request fails
+        """
+        response = requests.get(url, headers=self.client.headers, params=params)
+        response.raise_for_status()
+        return response
+
     def _list_resource(
         self,
         url: str,
