@@ -4,6 +4,7 @@ from typing import Any, Dict
 
 from .base import BaseResource, ListResponse, ResourceModel
 from .record_addresses import RecordAddresses
+from .record_documents import RecordDocuments
 
 
 @dataclass
@@ -41,6 +42,7 @@ class Records(BaseResource):
         """Initialize the Records resource with an AccelaClient instance."""
         super().__init__(client)
         self.addresses = RecordAddresses(client)
+        self.documents = RecordDocuments(client)
 
     def list(
         self,

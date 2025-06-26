@@ -2,6 +2,7 @@ from typing import ClassVar, Dict, Type
 
 from .resources.base import BaseResource
 from .resources.record_addresses import RecordAddresses
+from .resources.record_documents import RecordDocuments
 from .resources.records import Records
 
 
@@ -14,11 +15,13 @@ class AccelaClient:
     RESOURCE_CLASSES: ClassVar[Dict[str, Type[BaseResource]]] = {
         "records": Records,
         "record_addresses": RecordAddresses,
+        "record_documents": RecordDocuments,
     }
 
     # Hinting
     records: Records
     record_addresses: RecordAddresses
+    record_documents: RecordDocuments
 
     def __init__(self, access_token: str, agency: str, environment: str):
         """
