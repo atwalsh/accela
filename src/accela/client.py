@@ -5,6 +5,7 @@ from .resources.documents import Documents
 from .resources.modules import Modules
 from .resources.record_addresses import RecordAddresses
 from .resources.record_documents import RecordDocuments
+from .resources.record_types import RecordTypes
 from .resources.records import Records
 
 
@@ -20,6 +21,7 @@ class AccelaClient:
         "record_documents": RecordDocuments,
         "documents": Documents,
         "modules": Modules,
+        "record_types": RecordTypes,
     }
 
     # Hinting
@@ -28,6 +30,7 @@ class AccelaClient:
     record_documents: RecordDocuments
     documents: Documents
     modules: Modules
+    record_types: RecordTypes
 
     def __init__(self, access_token: str, agency: str, environment: str):
         """
