@@ -18,7 +18,6 @@ class Document(ResourceModel):
     entity_type: str
     entity_id: str
     service_provider_code: str
-    department: str
     uploaded_by: str
     modified_by: str
     modified_date: datetime
@@ -26,6 +25,7 @@ class Document(ResourceModel):
     status_date: datetime
     type: str
     size: float
+    department: Optional[str] = None
     description: Optional[str] = None
     category: Optional[Dict[str, str]] = None
     status: Optional[Dict[str, str]] = None
@@ -58,7 +58,7 @@ class Document(ResourceModel):
             entity_type=data["entityType"],
             entity_id=data["entityId"],
             service_provider_code=data["serviceProviderCode"],
-            department=data["department"],
+            department=data.get("department"),
             uploaded_by=data["uploadedBy"],
             modified_by=data["modifiedBy"],
             modified_date=modified_date,

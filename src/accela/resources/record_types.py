@@ -54,7 +54,7 @@ class RecordTypes(BaseResource):
     """Record types resource for interacting with Accela settings/records/types API."""
 
     def list(
-        self, *, module: str,  limit: int = 100, offset: int = 0
+        self, *, module: str, limit: int = 100, offset: int = 0
     ) -> ListResponse[RecordType]:
         """
         List record types for a specific module with pagination support.
