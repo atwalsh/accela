@@ -57,7 +57,11 @@ class ListResponse(Generic[T]):
             response.raise_for_status()
 
             result = response.json()
-            items = [self._model_class.from_json(item) for item in result["result"]]
+            # Handle case where result key is missing (empty response)
+            if "result" not in result:
+                items = []
+            else:
+                items = [self._model_class.from_json(item) for item in result["result"]]
 
             # Update this instance with new page info
             self.data = items
@@ -157,7 +161,11 @@ class BaseResource:
         result = self._get(url, params=params)
 
         # Parse the results into model instances
-        items = [model_class.from_json(item) for item in result[result_key]]
+        # Handle case where result key is missing (empty response)
+        if result_key not in result:
+            items = []
+        else:
+            items = [model_class.from_json(item) for item in result[result_key]]
         total = result.get("total", len(items))
 
         return ListResponse(
