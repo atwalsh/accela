@@ -33,68 +33,58 @@ class RecordParcel(ResourceModel):
     township: Optional[str] = None
     tract: Optional[str] = None
 
+    # JSON object fields (stored as JSON data)
     status: Optional[Dict[str, Any]] = None
     subdivision: Optional[Dict[str, Any]] = None
     owners: Optional[List[Dict[str, Any]]] = None
     record_id: Optional[Dict[str, Any]] = None
 
-    # Store the original JSON response
+    # Original API response
     raw_json: Dict[str, Any] = field(default_factory=dict)
 
-    @classmethod
-    def from_json(cls, data: Dict[str, Any]) -> "RecordParcel":
-        """Create a RecordParcel instance from API response data."""
-        fields = {
-            "raw_json": data,
-        }
+    FIELD_MAPPING = {
+        "id": "id",
+        "block": "block",
+        "book": "book",
+        "censusTract": "census_tract",
+        "councilDistrict": "council_district",
+        "exemptionValue": "exemption_value",
+        "gisSequenceNumber": "gis_sequence_number",
+        "improvedValue": "improved_value",
+        "isPrimary": "is_primary",
+        "landValue": "land_value",
+        "legalDescription": "legal_description",
+        "lot": "lot",
+        "mapNumber": "map_number",
+        "mapReferenceInfo": "map_reference_info",
+        "page": "page",
+        "parcel": "parcel",
+        "parcelArea": "parcel_area",
+        "parcelNumber": "parcel_number",
+        "planArea": "plan_area",
+        "range": "range",
+        "section": "section",
+        "supervisorDistrict": "supervisor_district",
+        "township": "township",
+        "tract": "tract",
+        "status": "status",
+        "subdivision": "subdivision",
+        "owners": "owners",
+        "recordId": "record_id",
+    }
 
-        field_mapping = {
-            "id": "id",
-            "block": "block",
-            "book": "book",
-            "censusTract": "census_tract",
-            "councilDistrict": "council_district",
-            "exemptionValue": "exemption_value",
-            "gisSequenceNumber": "gis_sequence_number",
-            "improvedValue": "improved_value",
-            "isPrimary": "is_primary",
-            "landValue": "land_value",
-            "legalDescription": "legal_description",
-            "lot": "lot",
-            "mapNumber": "map_number",
-            "mapReferenceInfo": "map_reference_info",
-            "page": "page",
-            "parcel": "parcel",
-            "parcelArea": "parcel_area",
-            "parcelNumber": "parcel_number",
-            "planArea": "plan_area",
-            "range": "range",
-            "section": "section",
-            "supervisorDistrict": "supervisor_district",
-            "township": "township",
-            "tract": "tract",
-            "status": "status",
-            "subdivision": "subdivision",
-            "owners": "owners",
-            "recordId": "record_id",
-        }
-
-        for json_field, python_field in field_mapping.items():
-            if json_field in data:
-                fields[python_field] = data.get(json_field)
-
-        return cls(**fields)
+    JSON_FIELDS = ["status", "subdivision", "owners", "recordId"]
 
 
 class RecordParcels(BaseResource):
     """Resource for interacting with Accela record parcels."""
 
     def list(
-        self,
-        record_id: str,
-        fields: Optional[List[str]] = None,
-        limit: int = 100,
-        offset: int = 0,
+            self,
+            record_id: str,
+            fields: Optional[List[str]] = None,
+            limit: int = 100,
+            offset: int = 0,
     ) -> ListResponse[RecordParcel]:
         """
         List all parcels associated with a record with pagination support.
