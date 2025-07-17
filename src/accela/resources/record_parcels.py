@@ -8,13 +8,13 @@ from .base import BaseResource, ListResponse, ResourceModel
 class RecordParcel(ResourceModel):
     """Represents a parcel associated with an Accela record."""
 
-    id: Optional[str] = None
     block: Optional[str] = None
     book: Optional[str] = None
     census_tract: Optional[str] = None
     council_district: Optional[str] = None
     exemption_value: Optional[float] = None
     gis_sequence_number: Optional[int] = None
+    id: Optional[str] = None
     improved_value: Optional[float] = None
     is_primary: Optional[str] = None
     land_value: Optional[float] = None
@@ -22,34 +22,30 @@ class RecordParcel(ResourceModel):
     lot: Optional[str] = None
     map_number: Optional[str] = None
     map_reference_info: Optional[str] = None
+    owners: Optional[List[Dict[str, Any]]] = None
     page: Optional[str] = None
     parcel: Optional[str] = None
     parcel_area: Optional[float] = None
     parcel_number: Optional[str] = None
     plan_area: Optional[str] = None
     range: Optional[str] = None
+    record_id: Optional[Dict[str, Any]] = None
     section: Optional[int] = None
+    status: Optional[Dict[str, Any]] = None
+    subdivision: Optional[Dict[str, Any]] = None
     supervisor_district: Optional[str] = None
     township: Optional[str] = None
     tract: Optional[str] = None
-
-    # JSON object fields (stored as JSON data)
-    status: Optional[Dict[str, Any]] = None
-    subdivision: Optional[Dict[str, Any]] = None
-    owners: Optional[List[Dict[str, Any]]] = None
-    record_id: Optional[Dict[str, Any]] = None
-
-    # Original API response
     raw_json: Dict[str, Any] = field(default_factory=dict)
 
     FIELD_MAPPING = {
-        "id": "id",
         "block": "block",
         "book": "book",
         "censusTract": "census_tract",
         "councilDistrict": "council_district",
         "exemptionValue": "exemption_value",
         "gisSequenceNumber": "gis_sequence_number",
+        "id": "id",
         "improvedValue": "improved_value",
         "isPrimary": "is_primary",
         "landValue": "land_value",
@@ -57,34 +53,34 @@ class RecordParcel(ResourceModel):
         "lot": "lot",
         "mapNumber": "map_number",
         "mapReferenceInfo": "map_reference_info",
+        "owners": "owners",
         "page": "page",
         "parcel": "parcel",
         "parcelArea": "parcel_area",
         "parcelNumber": "parcel_number",
         "planArea": "plan_area",
         "range": "range",
+        "recordId": "record_id",
         "section": "section",
+        "status": "status",
+        "subdivision": "subdivision",
         "supervisorDistrict": "supervisor_district",
         "township": "township",
         "tract": "tract",
-        "status": "status",
-        "subdivision": "subdivision",
-        "owners": "owners",
-        "recordId": "record_id",
     }
 
-    JSON_FIELDS = ["status", "subdivision", "owners", "recordId"]
+    JSON_FIELDS = ["owners", "recordId", "status", "subdivision"]
 
 
 class RecordParcels(BaseResource):
     """Resource for interacting with Accela record parcels."""
 
     def list(
-            self,
-            record_id: str,
-            fields: Optional[List[str]] = None,
-            limit: int = 100,
-            offset: int = 0,
+        self,
+        record_id: str,
+        fields: Optional[List[str]] = None,
+        limit: int = 100,
+        offset: int = 0,
     ) -> ListResponse[RecordParcel]:
         """
         List all parcels associated with a record with pagination support.
