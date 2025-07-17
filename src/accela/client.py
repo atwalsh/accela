@@ -5,6 +5,7 @@ from .resources.documents import Documents
 from .resources.modules import Modules
 from .resources.record_addresses import RecordAddresses
 from .resources.record_documents import RecordDocuments
+from .resources.record_parcels import RecordParcels
 from .resources.record_types import RecordTypes
 from .resources.records import Records
 
@@ -19,6 +20,7 @@ class AccelaClient:
         "records": Records,
         "record_addresses": RecordAddresses,
         "record_documents": RecordDocuments,
+        "record_parcels": RecordParcels,
         "documents": Documents,
         "modules": Modules,
         "record_types": RecordTypes,
@@ -28,6 +30,7 @@ class AccelaClient:
     records: Records
     record_addresses: RecordAddresses
     record_documents: RecordDocuments
+    record_parcels: RecordParcels
     documents: Documents
     modules: Modules
     record_types: RecordTypes

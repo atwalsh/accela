@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from .base import BaseResource, ListResponse, ResourceModel
 
@@ -8,46 +8,50 @@ from .base import BaseResource, ListResponse, ResourceModel
 class RecordType(ResourceModel):
     """Represents an Accela record type."""
 
-    value: str
-    type: str
-    text: str
-    group: str
-    subType: str
-    category: str
-    module: str
-    alias: str
-    id: str
-    readable: bool
-    createable: bool
-    updatable: bool
-    deletable: bool
-    asChildOnly: str
-    searchable: bool
-    smartChoiceCode: str
+    alias: Optional[str] = None
+    as_child_only: Optional[str] = None
+    associations: Optional[Dict[str, Any]] = None
+    category: Optional[str] = None
+    createable: Optional[bool] = None
+    deletable: Optional[bool] = None
+    filter_name: Optional[str] = None
+    group: Optional[str] = None
+    id: Optional[str] = None
+    module: Optional[str] = None
+    readable: Optional[bool] = None
+    searchable: Optional[bool] = None
+    sub_type: Optional[str] = None
+    text: Optional[str] = None
+    type: Optional[str] = None
+    updatable: Optional[bool] = None
+    value: Optional[str] = None
     raw_json: Dict[str, Any] = field(default_factory=dict)
 
-    @classmethod
-    def from_json(cls, data: Dict[str, Any]) -> "RecordType":
-        """Create a RecordType instance from API response data."""
-        return cls(
-            value=data["value"],
-            type=data["type"],
-            text=data["text"],
-            group=data["group"],
-            subType=data["subType"],
-            category=data["category"],
-            module=data["module"],
-            alias=data["alias"],
-            id=data["id"],
-            readable=data["readable"],
-            createable=data["createable"],
-            updatable=data["updatable"],
-            deletable=data["deletable"],
-            asChildOnly=data["asChildOnly"],
-            searchable=data["searchable"],
-            smartChoiceCode=data["smartChoiceCode"],
-            raw_json=data,
-        )
+    # Field mapping: API field name -> Python field name
+    FIELD_MAPPING = {
+        "alias": "alias",
+        "asChildOnly": "as_child_only",
+        "associations": "associations",
+        "category": "category",
+        "createable": "createable",
+        "deletable": "deletable",
+        "filterName": "filter_name",
+        "group": "group",
+        "id": "id",
+        "module": "module",
+        "readable": "readable",
+        "searchable": "searchable",
+        "subType": "sub_type",
+        "text": "text",
+        "type": "type",
+        "updatable": "updatable",
+        "value": "value",
+    }
+
+    # JSON object fields that need recursive snake_case conversion
+    JSON_FIELDS = [
+        "associations",
+    ]
 
 
 class RecordTypes(BaseResource):
@@ -70,24 +74,4 @@ class RecordTypes(BaseResource):
         url = f"{self.client.BASE_URL}/settings/records/types"
         params = {"module": module, "limit": limit, "offset": offset}
 
-        result = self._get(url, params=params)
-
-        # Parse the results into model instances
-        items = [RecordType.from_json(item) for item in result["result"]]
-
-        # Extract pagination info from the page object
-        page = result["page"]
-        total = page["total"]
-        has_more = page["hasmore"]
-
-        return ListResponse(
-            data=items,
-            has_more=has_more,
-            offset=offset,
-            limit=limit,
-            total=total,
-            _client=self.client,
-            _params=params,
-            _url=url,
-            _model_class=RecordType,
-        )
+        return self._list_resource(url, RecordType, params)

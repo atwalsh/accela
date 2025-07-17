@@ -1,10 +1,31 @@
 import json
+import re
 from dataclasses import asdict, dataclass, field
-from typing import Any, Dict, Generic, Iterator, List, Optional, Type, TypeVar
+from typing import Any, Dict, Generic, Iterator, List, Optional, Type, TypeVar, Union
 
 import requests
 
 T = TypeVar("T")
+
+
+def _camel_to_snake(name: str) -> str:
+    """Convert camelCase to snake_case."""
+    # Insert underscore before uppercase letters that follow lowercase letters
+    s1 = re.sub("([a-z0-9])([A-Z])", r"\1_\2", name)
+    return s1.lower()
+
+
+def _convert_keys_to_snake_case(obj: Union[Dict, List, Any]) -> Union[Dict, List, Any]:
+    """Recursively convert all dictionary keys from camelCase to snake_case."""
+    if isinstance(obj, dict):
+        return {
+            _camel_to_snake(key): _convert_keys_to_snake_case(value)
+            for key, value in obj.items()
+        }
+    elif isinstance(obj, list):
+        return [_convert_keys_to_snake_case(item) for item in obj]
+    else:
+        return obj
 
 
 class ResourceModel:
@@ -12,7 +33,23 @@ class ResourceModel:
 
     @classmethod
     def from_json(cls, data: Dict[str, Any]):
-        raise NotImplementedError("Subclasses must implement from_json")
+        """Generic method to create instance from API response data."""
+        if not hasattr(cls, "FIELD_MAPPING"):
+            raise ValueError(f"{cls.__name__} must define FIELD_MAPPING")
+
+        kwargs = {"raw_json": data}
+
+        for api_field, python_field in cls.FIELD_MAPPING.items():
+            if api_field in data:
+                value = data[api_field]
+
+                # Apply recursive snake_case conversion for JSON object fields
+                if hasattr(cls, "JSON_FIELDS") and api_field in cls.JSON_FIELDS:
+                    value = _convert_keys_to_snake_case(value)
+
+                kwargs[python_field] = value
+
+        return cls(**kwargs)
 
     def to_dict(self) -> Dict[str, Any]:
         result = {}

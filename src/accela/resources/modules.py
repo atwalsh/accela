@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from .base import BaseResource, ResourceModel
 
@@ -8,18 +8,20 @@ from .base import BaseResource, ResourceModel
 class Module(ResourceModel):
     """Represents an Accela module."""
 
-    value: str
-    text: str
+    address_types: Optional[List[Dict[str, Any]]] = None
+    text: Optional[str] = None
+    value: Optional[str] = None
     raw_json: Dict[str, Any] = field(default_factory=dict)
 
-    @classmethod
-    def from_json(cls, data: Dict[str, Any]) -> "Module":
-        """Create a Module instance from API response data."""
-        return cls(
-            value=data["value"],
-            text=data["text"],
-            raw_json=data,
-        )
+    FIELD_MAPPING = {
+        "addressTypes": "address_types",
+        "text": "text",
+        "value": "value",
+    }
+
+    JSON_FIELDS = [
+        "addressTypes",
+    ]
 
 
 class Modules(BaseResource):
