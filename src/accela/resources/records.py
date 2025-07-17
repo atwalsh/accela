@@ -197,12 +197,12 @@ class Records(BaseResource):
     """Records resource for interacting with Accela records API."""
 
     def list(
-            self,
-            limit: int = 100,
-            offset: int = 0,
-            module: str = None,
-            record_type: str = None,
-            opened_date_after: date = None,
+        self,
+        limit: int = 100,
+        offset: int = 0,
+        module: str = None,
+        record_type: str = None,
+        opened_date_after: date = None,
     ) -> ListResponse[Record]:
         """
         List records with pagination support.
