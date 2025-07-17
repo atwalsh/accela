@@ -88,7 +88,6 @@ class Record(ResourceModel):
     value: Optional[str] = None
     raw_json: Dict[str, Any] = field(default_factory=dict)
 
-    # Field mapping: API field name -> Python field name
     FIELD_MAPPING = {
         "actualProductionUnit": "actual_production_unit",
         "addresses": "addresses",
@@ -169,7 +168,6 @@ class Record(ResourceModel):
         "value": "value",
     }
 
-    # JSON object fields that need recursive snake_case conversion
     JSON_FIELDS = [
         "addresses",
         "assets",

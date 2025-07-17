@@ -62,7 +62,6 @@ class RecordAddress(ResourceModel):
     y_coordinate: Optional[float] = None
     raw_json: Dict[str, Any] = field(default_factory=dict)
 
-    # Field mapping: API field name -> Python field name
     FIELD_MAPPING = {
         "addressLine1": "address_line1",
         "addressLine2": "address_line2",
@@ -118,7 +117,6 @@ class RecordAddress(ResourceModel):
         "yCoordinate": "y_coordinate",
     }
 
-    # JSON object fields that need recursive snake_case conversion
     JSON_FIELDS = [
         "addressTypeFlag",
         "country",
