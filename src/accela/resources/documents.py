@@ -1,5 +1,4 @@
 from dataclasses import dataclass, field
-from datetime import datetime
 from typing import Any, Dict, Optional
 
 import requests
@@ -11,67 +10,63 @@ from .base import BaseResource, ResourceModel
 class Document(ResourceModel):
     """Represents a document from the Accela documents API."""
 
-    id: str
-    source: str
-    file_name: str
-    file_key: str
-    entity_type: str
-    entity_id: str
-    service_provider_code: str
-    uploaded_by: str
-    modified_by: str
-    modified_date: datetime
-    uploaded_date: datetime
-    status_date: datetime
-    type: str
-    size: float
+    category: Optional[Dict[str, Any]] = None
+    deletable: Optional[Dict[str, Any]] = None
     department: Optional[str] = None
     description: Optional[str] = None
-    category: Optional[Dict[str, str]] = None
-    status: Optional[Dict[str, str]] = None
-    group: Optional[Dict[str, str]] = None
-
-    # Original JSON response
+    downloadable: Optional[Dict[str, Any]] = None
+    entity_id: Optional[str] = None
+    entity_type: Optional[str] = None
+    file_name: Optional[str] = None
+    group: Optional[Dict[str, Any]] = None
+    id: Optional[int] = None
+    modified_by: Optional[str] = None
+    modified_date: Optional[str] = None
+    service_provider_code: Optional[str] = None
+    size: Optional[int] = None
+    source: Optional[str] = None
+    status: Optional[Dict[str, Any]] = None
+    status_date: Optional[str] = None
+    title_viewable: Optional[Dict[str, Any]] = None
+    type: Optional[str] = None
+    uploaded_by: Optional[str] = None
+    uploaded_date: Optional[str] = None
+    virtual_folders: Optional[str] = None
     raw_json: Dict[str, Any] = field(default_factory=dict)
 
-    @classmethod
-    def from_json(cls, data: Dict[str, Any]) -> "Document":
-        """Create a Document instance from API response data."""
+    FIELD_MAPPING = {
+        "category": "category",
+        "deletable": "deletable",
+        "department": "department",
+        "description": "description",
+        "downloadable": "downloadable",
+        "entityId": "entity_id",
+        "entityType": "entity_type",
+        "fileName": "file_name",
+        "group": "group",
+        "id": "id",
+        "modifiedBy": "modified_by",
+        "modifiedDate": "modified_date",
+        "serviceProviderCode": "service_provider_code",
+        "size": "size",
+        "source": "source",
+        "status": "status",
+        "statusDate": "status_date",
+        "titleViewable": "title_viewable",
+        "type": "type",
+        "uploadedBy": "uploaded_by",
+        "uploadedDate": "uploaded_date",
+        "virtualFolders": "virtual_folders",
+    }
 
-        # Parse date fields
-        modified_date = datetime.strptime(data["modifiedDate"], "%Y-%m-%d %H:%M:%S")
-        uploaded_date = datetime.strptime(data["uploadedDate"], "%Y-%m-%d %H:%M:%S")
-        status_date = datetime.strptime(data["statusDate"], "%Y-%m-%d %H:%M:%S")
-
-        # Handle nested objects
-        category = (
-            data.get("category") if isinstance(data.get("category"), dict) else None
-        )
-        status = data.get("status") if isinstance(data.get("status"), dict) else None
-        group = data.get("group") if isinstance(data.get("group"), dict) else None
-
-        return cls(
-            id=str(data["id"]),
-            source=data["source"],
-            file_name=data["fileName"],
-            file_key=data["fileKey"],
-            entity_type=data["entityType"],
-            entity_id=data["entityId"],
-            service_provider_code=data["serviceProviderCode"],
-            department=data.get("department"),
-            uploaded_by=data["uploadedBy"],
-            modified_by=data["modifiedBy"],
-            modified_date=modified_date,
-            uploaded_date=uploaded_date,
-            status_date=status_date,
-            type=data["type"],
-            size=data["size"],
-            description=data.get("description"),
-            category=category,
-            status=status,
-            group=group,
-            raw_json=data,
-        )
+    JSON_FIELDS = [
+        "category",
+        "deletable",
+        "downloadable",
+        "group",
+        "status",
+        "titleViewable",
+    ]
 
 
 class Documents(BaseResource):
