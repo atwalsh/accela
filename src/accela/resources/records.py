@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import date
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from .base import BaseResource, ListResponse, ResourceModel
 
@@ -198,19 +198,55 @@ class Records(BaseResource):
         self,
         limit: int = 100,
         offset: int = 0,
-        module: str = None,
-        record_type: str = None,
-        opened_date_after: date = None,
+        type: Optional[str] = None,
+        opened_date_from: Optional[Union[date, str]] = None,
+        opened_date_to: Optional[Union[date, str]] = None,
+        custom_id: Optional[str] = None,
+        module: Optional[str] = None,
+        status: Optional[str] = None,
+        assigned_to_department: Optional[str] = None,
+        assigned_user: Optional[str] = None,
+        assigned_date_from: Optional[Union[date, str]] = None,
+        assigned_date_to: Optional[Union[date, str]] = None,
+        completed_date_from: Optional[Union[date, str]] = None,
+        completed_date_to: Optional[Union[date, str]] = None,
+        status_date_from: Optional[Union[date, str]] = None,
+        status_date_to: Optional[Union[date, str]] = None,
+        completed_by_department: Optional[str] = None,
+        completed_by_user: Optional[str] = None,
+        closed_date_from: Optional[Union[date, str]] = None,
+        closed_date_to: Optional[Union[date, str]] = None,
+        closed_by_department: Optional[str] = None,
+        closed_by_user: Optional[str] = None,
+        record_class: Optional[str] = None,
     ) -> ListResponse[Record]:
         """
-        List records with pagination support.
+        List records with pagination support and various filters.
 
         Args:
             limit: Number of records per page, default 100
             offset: Starting offset for pagination, default 0
-            module: Filter records by module name
-            record_type: Filter records by record type
-            opened_date_after: Filter records opened on or after this date
+            type: Filter by record type
+            opened_date_from: Filter by the record's open date range, beginning with this date (date object or YYYY-MM-DD string)
+            opened_date_to: Filter by the record's open date range, ending with this date (date object or YYYY-MM-DD string)
+            custom_id: Filter by the record custom id
+            module: Filter by module
+            status: Filter by record status
+            assigned_to_department: Filter by the assigned department
+            assigned_user: Filter by the assigned user
+            assigned_date_from: Filter by the record's assigned date range starting with this date (date object or YYYY-MM-DD string)
+            assigned_date_to: Filter by the record's assigned date range ending with this date (date object or YYYY-MM-DD string)
+            completed_date_from: Filter by the record's completed date range starting with this date (date object or YYYY-MM-DD string)
+            completed_date_to: Filter by the record's completed date range ending with this date (date object or YYYY-MM-DD string)
+            status_date_from: Filter by the record's status date range starting with this date (date object or YYYY-MM-DD string)
+            status_date_to: Filter by the record's status date range ending with this date (date object or YYYY-MM-DD string)
+            completed_by_department: Filter by the deparment which completed the application
+            completed_by_user: Filter by the user who completed the application
+            closed_date_from: Filter by the record's closed date range starting with this date (date object or YYYY-MM-DD string)
+            closed_date_to: Filter by the record's closed date range ending with this date (date object or YYYY-MM-DD string)
+            closed_by_department: Filter by the department which closed the application
+            closed_by_user: Filter by the user who closed the application
+            record_class: Filter by record class
 
         Returns:
             ListResponse object with pagination support
@@ -218,18 +254,39 @@ class Records(BaseResource):
         url = f"{self.client.BASE_URL}/records"
         params = {"limit": limit, "offset": offset}
 
-        # Add filters if provided
-        if module:
-            params["module"] = module
+        def format_date_param(date_param):
+            if isinstance(date_param, date):
+                return date_param.strftime("%Y-%m-%d")
+            return date_param
 
-        if record_type:
-            params["type"] = record_type
+        filter_params = {
+            "type": type,
+            "openedDateFrom": format_date_param(opened_date_from),
+            "openedDateTo": format_date_param(opened_date_to),
+            "customId": custom_id,
+            "module": module,
+            "status": status,
+            "assignedToDepartment": assigned_to_department,
+            "assignedUser": assigned_user,
+            "assignedDateFrom": format_date_param(assigned_date_from),
+            "assignedDateTo": format_date_param(assigned_date_to),
+            "completedDateFrom": format_date_param(completed_date_from),
+            "completedDateTo": format_date_param(completed_date_to),
+            "statusDateFrom": format_date_param(status_date_from),
+            "statusDateTo": format_date_param(status_date_to),
+            "completedByDepartment": completed_by_department,
+            "completedByUser": completed_by_user,
+            "closedDateFrom": format_date_param(closed_date_from),
+            "closedDateTo": format_date_param(closed_date_to),
+            "closedByDepartment": closed_by_department,
+            "closedByUser": closed_by_user,
+            "recordClass": record_class,
+        }
 
-        if opened_date_after:
-            # Format date as YYYY-MM-DD for the API
-            params["openedDateFrom"] = opened_date_after.strftime("%Y-%m-%d")
+        for key, value in filter_params.items():
+            if value is not None:
+                params[key] = value
 
-        # Use the generic list method from BaseResource
         return self._list_resource(url, Record, params)
 
     def retrieve(self, record_id: str) -> Record:
