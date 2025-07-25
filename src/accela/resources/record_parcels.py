@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from .base import BaseResource, ListResponse, ResourceModel
 
@@ -8,15 +8,17 @@ from .base import BaseResource, ListResponse, ResourceModel
 class RecordParcel(ResourceModel):
     """Represents a parcel associated with an Accela record."""
 
+    id: str
+    raw_json: Dict[str, Any] = field(default_factory=dict)
+
     block: Optional[str] = None
     book: Optional[str] = None
     census_tract: Optional[str] = None
     council_district: Optional[str] = None
     exemption_value: Optional[float] = None
     gis_sequence_number: Optional[int] = None
-    id: Optional[str] = None
     improved_value: Optional[float] = None
-    is_primary: Optional[str] = None
+    is_primary: Optional[bool] = None
     land_value: Optional[float] = None
     legal_description: Optional[str] = None
     lot: Optional[str] = None
@@ -36,7 +38,6 @@ class RecordParcel(ResourceModel):
     supervisor_district: Optional[str] = None
     township: Optional[str] = None
     tract: Optional[str] = None
-    raw_json: Dict[str, Any] = field(default_factory=dict)
 
     FIELD_MAPPING = {
         "block": "block",
@@ -69,25 +70,22 @@ class RecordParcel(ResourceModel):
         "tract": "tract",
     }
 
-    JSON_FIELDS = ["owners", "recordId", "status", "subdivision"]
+    DICT_FIELDS = ["owners", "recordId", "status", "subdivision"]
+
+    BOOL_FIELDS = [
+        "isPrimary",
+    ]
 
 
 class RecordParcels(BaseResource):
     """Resource for interacting with Accela record parcels."""
 
-    def list(
-        self,
-        record_id: str,
-        fields: Optional[List[str]] = None,
-        limit: int = 100,
-        offset: int = 0,
-    ) -> ListResponse[RecordParcel]:
+    def list(self, record_id: str, limit: int = 100, offset: int = 0) -> ListResponse[RecordParcel]:
         """
         List all parcels associated with a record with pagination support.
 
         Args:
             record_id: The ID of the record to get parcels for
-            fields: List of fields to include in the response
             limit: Number of parcels per page, default 100
             offset: Starting offset for pagination, default 0
 
@@ -95,9 +93,6 @@ class RecordParcels(BaseResource):
             ListResponse object with pagination support
         """
         url = f"{self.client.BASE_URL}/records/{record_id}/parcels"
-        params = {"limit": limit, "offset": offset}
-
-        if fields is not None and len(fields) > 0:
-            params["fields"] = ",".join(fields)
+        params: Dict[str, Union[int, str]] = {"limit": limit, "offset": offset}
 
         return self._list_resource(url, RecordParcel, params)

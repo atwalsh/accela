@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import date, datetime
 from typing import Any, Dict, List, Optional, Union
 
 from .base import BaseResource, ListResponse, ResourceModel
@@ -9,20 +9,23 @@ from .base import BaseResource, ListResponse, ResourceModel
 class Record(ResourceModel):
     """Represents an Accela record."""
 
+    id: str
+    raw_json: Dict[str, Any] = field(default_factory=dict)
+
     actual_production_unit: Optional[float] = None
     addresses: Optional[List[Dict[str, Any]]] = None
-    appearance_date: Optional[str] = None
+    appearance_date: Optional[datetime] = None
     appearance_day_of_week: Optional[str] = None
     assets: Optional[List[Dict[str, Any]]] = None
-    assigned_date: Optional[str] = None
+    assigned_date: Optional[datetime] = None
     assigned_to_department: Optional[str] = None
     assigned_user: Optional[str] = None
     balance: Optional[float] = None
     booking: Optional[bool] = None
     closed_by_department: Optional[str] = None
     closed_by_user: Optional[str] = None
-    closed_date: Optional[str] = None
-    complete_date: Optional[str] = None
+    closed_date: Optional[datetime] = None
+    complete_date: Optional[datetime] = None
     completed_by_department: Optional[str] = None
     completed_by_user: Optional[str] = None
     condition_of_approvals: Optional[List[Dict[str, Any]]] = None
@@ -41,12 +44,11 @@ class Record(ResourceModel):
     enforce_user: Optional[str] = None
     enforce_user_id: Optional[str] = None
     estimated_cost_per_unit: Optional[float] = None
-    estimated_due_date: Optional[str] = None
+    estimated_due_date: Optional[datetime] = None
     estimated_production_unit: Optional[float] = None
     estimated_total_job_cost: Optional[float] = None
-    first_issued_date: Optional[str] = None
+    first_issued_date: Optional[datetime] = None
     housing_units: Optional[int] = None
-    id: Optional[str] = None
     in_possession_time: Optional[float] = None
     infraction: Optional[bool] = None
     initiated_product: Optional[str] = None
@@ -59,7 +61,7 @@ class Record(ResourceModel):
     name: Optional[str] = None
     number_of_buildings: Optional[int] = None
     offense_witnessed: Optional[bool] = None
-    opened_date: Optional[str] = None
+    opened_date: Optional[datetime] = None
     overall_application_time: Optional[float] = None
     owner: Optional[List[Dict[str, Any]]] = None
     parcel: Optional[List[Dict[str, Any]]] = None
@@ -69,13 +71,13 @@ class Record(ResourceModel):
     record_class: Optional[str] = None
     renewal_info: Optional[Dict[str, Any]] = None
     reported_channel: Optional[Dict[str, Any]] = None
-    reported_date: Optional[str] = None
+    reported_date: Optional[datetime] = None
     reported_type: Optional[Dict[str, Any]] = None
-    scheduled_date: Optional[str] = None
+    scheduled_date: Optional[datetime] = None
     severity: Optional[Dict[str, Any]] = None
     short_notes: Optional[str] = None
     status: Optional[Dict[str, Any]] = None
-    status_date: Optional[str] = None
+    status_date: Optional[datetime] = None
     status_reason: Optional[Dict[str, Any]] = None
     status_type: Optional[str] = None
     total_fee: Optional[float] = None
@@ -84,9 +86,8 @@ class Record(ResourceModel):
     tracking_id: Optional[int] = None
     type: Optional[Dict[str, Any]] = None
     undistributed_cost: Optional[float] = None
-    update_date: Optional[str] = None
+    update_date: Optional[datetime] = None
     value: Optional[str] = None
-    raw_json: Dict[str, Any] = field(default_factory=dict)
 
     FIELD_MAPPING = {
         "actualProductionUnit": "actual_production_unit",
@@ -168,7 +169,7 @@ class Record(ResourceModel):
         "value": "value",
     }
 
-    JSON_FIELDS = [
+    DICT_FIELDS = [
         "addresses",
         "assets",
         "conditionOfApprovals",
@@ -190,35 +191,58 @@ class Record(ResourceModel):
         "type",
     ]
 
+    DATETIME_FIELDS = [
+        "appearanceDate",
+        "assignedDate",
+        "closedDate",
+        "completeDate",
+        "estimatedDueDate",
+        "firstIssuedDate",
+        "openedDate",
+        "reportedDate",
+        "scheduledDate",
+        "statusDate",
+        "updateDate",
+    ]
+
+    BOOL_FIELDS = [
+        "booking",
+        "defendantSignature",
+        "infraction",
+        "misdemeanor",
+        "offenseWitnessed",
+        "publicOwned",
+    ]
+
 
 class Records(BaseResource):
     """Records resource for interacting with Accela records API."""
 
     def list(
-        self,
-        limit: int = 100,
-        offset: int = 0,
-        type: Optional[str] = None,
-        opened_date_from: Optional[Union[date, str]] = None,
-        opened_date_to: Optional[Union[date, str]] = None,
-        custom_id: Optional[str] = None,
-        module: Optional[str] = None,
-        status: Optional[str] = None,
-        assigned_to_department: Optional[str] = None,
-        assigned_user: Optional[str] = None,
-        assigned_date_from: Optional[Union[date, str]] = None,
-        assigned_date_to: Optional[Union[date, str]] = None,
-        completed_date_from: Optional[Union[date, str]] = None,
-        completed_date_to: Optional[Union[date, str]] = None,
-        status_date_from: Optional[Union[date, str]] = None,
-        status_date_to: Optional[Union[date, str]] = None,
-        completed_by_department: Optional[str] = None,
-        completed_by_user: Optional[str] = None,
-        closed_date_from: Optional[Union[date, str]] = None,
-        closed_date_to: Optional[Union[date, str]] = None,
-        closed_by_department: Optional[str] = None,
-        closed_by_user: Optional[str] = None,
-        record_class: Optional[str] = None,
+            self,
+            limit: int = 100,
+            offset: int = 0,
+            type: Optional[str] = None,
+            opened_date_from: Optional[Union[date, str]] = None,
+            opened_date_to: Optional[Union[date, str]] = None,
+            custom_id: Optional[str] = None,
+            module: Optional[str] = None,
+            status: Optional[str] = None,
+            assigned_to_department: Optional[str] = None,
+            assigned_user: Optional[str] = None,
+            assigned_date_from: Optional[Union[date, str]] = None,
+            assigned_date_to: Optional[Union[date, str]] = None,
+            completed_date_from: Optional[Union[date, str]] = None,
+            completed_date_to: Optional[Union[date, str]] = None,
+            status_date_from: Optional[Union[date, str]] = None,
+            status_date_to: Optional[Union[date, str]] = None,
+            completed_by_department: Optional[str] = None,
+            completed_by_user: Optional[str] = None,
+            closed_date_from: Optional[Union[date, str]] = None,
+            closed_date_to: Optional[Union[date, str]] = None,
+            closed_by_department: Optional[str] = None,
+            closed_by_user: Optional[str] = None,
+            record_class: Optional[str] = None,
     ) -> ListResponse[Record]:
         """
         List records with pagination support and various filters.
@@ -252,7 +276,7 @@ class Records(BaseResource):
             ListResponse object with pagination support
         """
         url = f"{self.client.BASE_URL}/records"
-        params = {"limit": limit, "offset": offset}
+        params: Dict[str, Union[int, str]] = {"limit": limit, "offset": offset}
 
         def format_date_param(date_param):
             if isinstance(date_param, date):
@@ -301,4 +325,4 @@ class Records(BaseResource):
         """
         url = f"{self.client.BASE_URL}/records/{record_id}"
         result = self._get(url)
-        return Record.from_json(result["result"][0])
+        return Record.from_json(result["result"][0], self.client)

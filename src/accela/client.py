@@ -1,4 +1,5 @@
-from typing import ClassVar, Dict, Type
+from typing import ClassVar, Dict, Optional, Type
+from zoneinfo import ZoneInfo
 
 from .resources.base import BaseResource
 from .resources.documents import Documents
@@ -35,7 +36,7 @@ class AccelaClient:
     modules: Modules
     record_types: RecordTypes
 
-    def __init__(self, access_token: str, agency: str, environment: str):
+    def __init__(self, access_token: str, agency: str, environment: str, timezone: Optional[ZoneInfo] = None):
         """
         Initialize the Accela client.
 
@@ -43,10 +44,12 @@ class AccelaClient:
             access_token: Accela API access token
             agency: Agency name; e.g. 'CHARLOTTE'
             environment: Environment name; e.g. 'PROD'
+            timezone: Optional timezone for converting naive datetime strings from API to timezone-aware datetimes
         """
         self.access_token = access_token
         self.agency = agency
         self.environment = environment
+        self.timezone = timezone
 
         # Initialize all resources
         self._init_resources()

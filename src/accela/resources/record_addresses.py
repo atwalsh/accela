@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from .base import BaseResource, ListResponse, ResourceModel
 
@@ -7,6 +7,9 @@ from .base import BaseResource, ListResponse, ResourceModel
 @dataclass
 class RecordAddress(ResourceModel):
     """Represents an address associated with an Accela record."""
+
+    id: int
+    raw_json: Dict[str, Any] = field(default_factory=dict)
 
     address_line1: Optional[str] = None
     address_line2: Optional[str] = None
@@ -23,10 +26,9 @@ class RecordAddress(ResourceModel):
     house_alpha_start: Optional[str] = None
     house_fraction_end: Optional[Dict[str, Any]] = None
     house_fraction_start: Optional[Dict[str, Any]] = None
-    id: Optional[int] = None
     inspection_district: Optional[str] = None
     inspection_district_prefix: Optional[str] = None
-    is_primary: Optional[str] = None
+    is_primary: Optional[bool] = None
     level_end: Optional[str] = None
     level_prefix: Optional[str] = None
     level_start: Optional[str] = None
@@ -60,7 +62,6 @@ class RecordAddress(ResourceModel):
     unit_type: Optional[Dict[str, Any]] = None
     x_coordinate: Optional[float] = None
     y_coordinate: Optional[float] = None
-    raw_json: Dict[str, Any] = field(default_factory=dict)
 
     FIELD_MAPPING = {
         "addressLine1": "address_line1",
@@ -117,7 +118,7 @@ class RecordAddress(ResourceModel):
         "yCoordinate": "y_coordinate",
     }
 
-    JSON_FIELDS = [
+    DICT_FIELDS = [
         "addressTypeFlag",
         "country",
         "direction",
@@ -132,18 +133,16 @@ class RecordAddress(ResourceModel):
         "unitType",
     ]
 
+    BOOL_FIELDS = [
+        "isPrimary",
+    ]
+
 
 class RecordAddresses(BaseResource):
     """Resource for interacting with Accela record addresses."""
 
-    def list(
-        self,
-        record_id: str,
-        is_primary: Optional[str] = None,
-        fields: Optional[List[str]] = None,
-        limit: int = 100,
-        offset: int = 0,
-    ) -> ListResponse[RecordAddress]:
+    def list(self, record_id: str, is_primary: Optional[str] = None, fields: Optional[List[str]] = None,
+             limit: int = 100, offset: int = 0) -> ListResponse[RecordAddress]:
         """
         List all addresses associated with a record with pagination support.
 
@@ -158,7 +157,7 @@ class RecordAddresses(BaseResource):
             ListResponse object with pagination support
         """
         url = f"{self.client.BASE_URL}/records/{record_id}/addresses"
-        params = {"limit": limit, "offset": offset}
+        params: Dict[str, Union[int, str]] = {"limit": limit, "offset": offset}
 
         if is_primary is not None:
             params["isPrimary"] = is_primary
