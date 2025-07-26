@@ -5,12 +5,7 @@ from .documents import Document
 class RecordDocuments(BaseResource):
     """Resource for interacting with Accela record documents."""
 
-    def list(
-        self,
-        record_id: str,
-        limit: int = 100,
-        offset: int = 0,
-    ) -> ListResponse[Document]:
+    def list(self, record_id: str, limit: int = 100, offset: int = 0) -> ListResponse[Document]:
         """
         List all documents associated with a record with pagination support.
 

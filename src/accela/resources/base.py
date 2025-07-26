@@ -2,9 +2,9 @@ import json
 import re
 from abc import ABC
 from dataclasses import asdict, dataclass, field
-from datetime import date, datetime
-from zoneinfo import ZoneInfo
+from datetime import datetime
 from typing import Any, Dict, Generic, Iterator, List, Optional, Type, TypeVar, Union
+from zoneinfo import ZoneInfo
 
 import requests
 
@@ -50,7 +50,7 @@ class ResourceModel(ABC):
         Returns:
             bool: True if 'Y', False otherwise
         """
-        return bool_str.upper() == 'Y'
+        return bool_str.upper() == "Y"
 
     @classmethod
     def _parse_datetime(cls, date_str: str, timezone: Optional[ZoneInfo] = None) -> datetime:
@@ -152,7 +152,10 @@ class ListResponse(Generic[T]):
             if "result" not in result:
                 items = []
             else:
-                items = [self._model_class.from_json(item, self._client) for item in result["result"]]
+                items = [
+                    self._model_class.from_json(item, self._client)
+                    for item in result["result"]
+                ]
 
             # Update this instance with new page info
             self.data = items
@@ -229,7 +232,7 @@ class BaseResource:
         return response
 
     def _list_resource(self, url: str, model_class: Type[T], params: Dict[str, Any], result_key: str = "result") -> \
-            ListResponse[T]:
+    ListResponse[T]:
         """Generic method to list resources with pagination support.
 
         Args:

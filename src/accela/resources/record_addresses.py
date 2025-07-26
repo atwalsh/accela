@@ -141,8 +141,14 @@ class RecordAddress(ResourceModel):
 class RecordAddresses(BaseResource):
     """Resource for interacting with Accela record addresses."""
 
-    def list(self, record_id: str, is_primary: Optional[str] = None, fields: Optional[List[str]] = None,
-             limit: int = 100, offset: int = 0) -> ListResponse[RecordAddress]:
+    def list(
+        self,
+        record_id: str,
+        is_primary: Optional[str] = None,
+        fields: Optional[List[str]] = None,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> ListResponse[RecordAddress]:
         """
         List all addresses associated with a record with pagination support.
 

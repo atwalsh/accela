@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import date, datetime
+from datetime import datetime
 from typing import Any, Dict, Optional
 
 import requests
@@ -80,7 +80,7 @@ class Document(ResourceModel):
 class Documents(BaseResource):
     """Resource for interacting with Accela documents."""
 
-    def retrieve(self, document_id: str) -> Document:
+    def retrieve(self, document_id: int) -> Document:
         """
         Retrieve a specific document by ID.
 
@@ -94,7 +94,7 @@ class Documents(BaseResource):
         result = self._get(url)
         return Document.from_json(result["result"][0], self.client)
 
-    def download(self, document_id: str) -> requests.Response:
+    def download(self, document_id: int) -> requests.Response:
         """
         Download a document's binary content.
 

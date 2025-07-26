@@ -36,7 +36,13 @@ class AccelaClient:
     modules: Modules
     record_types: RecordTypes
 
-    def __init__(self, access_token: str, agency: str, environment: str, timezone: Optional[ZoneInfo] = None):
+    def __init__(
+            self,
+            access_token: str,
+            agency: str,
+            environment: str,
+            timezone: Optional[ZoneInfo] = None,
+    ):
         """
         Initialize the Accela client.
 
