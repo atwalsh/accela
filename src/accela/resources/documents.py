@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Any, Dict, Optional
 
 import requests
@@ -10,6 +11,9 @@ from .base import BaseResource, ResourceModel
 class Document(ResourceModel):
     """Represents a document from the Accela documents API."""
 
+    id: int
+    raw_json: Dict[str, Any] = field(default_factory=dict)
+
     category: Optional[Dict[str, Any]] = None
     deletable: Optional[Dict[str, Any]] = None
     department: Optional[str] = None
@@ -19,20 +23,18 @@ class Document(ResourceModel):
     entity_type: Optional[str] = None
     file_name: Optional[str] = None
     group: Optional[Dict[str, Any]] = None
-    id: Optional[int] = None
     modified_by: Optional[str] = None
-    modified_date: Optional[str] = None
+    modified_date: Optional[datetime] = None
     service_provider_code: Optional[str] = None
     size: Optional[int] = None
     source: Optional[str] = None
     status: Optional[Dict[str, Any]] = None
-    status_date: Optional[str] = None
+    status_date: Optional[datetime] = None
     title_viewable: Optional[Dict[str, Any]] = None
     type: Optional[str] = None
     uploaded_by: Optional[str] = None
-    uploaded_date: Optional[str] = None
+    uploaded_date: Optional[datetime] = None
     virtual_folders: Optional[str] = None
-    raw_json: Dict[str, Any] = field(default_factory=dict)
 
     FIELD_MAPPING = {
         "category": "category",
@@ -59,7 +61,7 @@ class Document(ResourceModel):
         "virtualFolders": "virtual_folders",
     }
 
-    JSON_FIELDS = [
+    DICT_FIELDS = [
         "category",
         "deletable",
         "downloadable",
@@ -68,11 +70,17 @@ class Document(ResourceModel):
         "titleViewable",
     ]
 
+    DATETIME_FIELDS = [
+        "modifiedDate",
+        "statusDate",
+        "uploadedDate",
+    ]
+
 
 class Documents(BaseResource):
     """Resource for interacting with Accela documents."""
 
-    def retrieve(self, document_id: str) -> Document:
+    def retrieve(self, document_id: int) -> Document:
         """
         Retrieve a specific document by ID.
 
@@ -84,9 +92,9 @@ class Documents(BaseResource):
         """
         url = f"{self.client.BASE_URL}/documents/{document_id}"
         result = self._get(url)
-        return Document.from_json(result["result"][0])
+        return Document.from_json(result["result"][0], self.client)
 
-    def download(self, document_id: str) -> requests.Response:
+    def download(self, document_id: int) -> requests.Response:
         """
         Download a document's binary content.
 

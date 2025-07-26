@@ -8,6 +8,9 @@ from .base import BaseResource, ListResponse, ResourceModel
 class RecordType(ResourceModel):
     """Represents an Accela record type."""
 
+    id: str
+    raw_json: Dict[str, Any] = field(default_factory=dict)
+
     alias: Optional[str] = None
     as_child_only: Optional[str] = None
     associations: Optional[Dict[str, Any]] = None
@@ -16,7 +19,6 @@ class RecordType(ResourceModel):
     deletable: Optional[bool] = None
     filter_name: Optional[str] = None
     group: Optional[str] = None
-    id: Optional[str] = None
     module: Optional[str] = None
     readable: Optional[bool] = None
     searchable: Optional[bool] = None
@@ -25,7 +27,6 @@ class RecordType(ResourceModel):
     type: Optional[str] = None
     updatable: Optional[bool] = None
     value: Optional[str] = None
-    raw_json: Dict[str, Any] = field(default_factory=dict)
 
     # Field mapping: API field name -> Python field name
     FIELD_MAPPING = {
@@ -48,18 +49,24 @@ class RecordType(ResourceModel):
         "value": "value",
     }
 
-    # JSON object fields that need recursive snake_case conversion
-    JSON_FIELDS = [
+    # Dictionary object fields that need recursive snake_case conversion
+    DICT_FIELDS = [
         "associations",
+    ]
+
+    BOOL_FIELDS = [
+        "createable",
+        "deletable",
+        "readable",
+        "searchable",
+        "updatable",
     ]
 
 
 class RecordTypes(BaseResource):
     """Record types resource for interacting with Accela settings/records/types API."""
 
-    def list(
-        self, *, module: str, limit: int = 100, offset: int = 0
-    ) -> ListResponse[RecordType]:
+    def list(self, *, module: str, limit: int = 100, offset: int = 0) -> ListResponse[RecordType]:
         """
         List record types for a specific module with pagination support.
 

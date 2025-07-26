@@ -8,10 +8,11 @@ from .base import BaseResource, ResourceModel
 class Module(ResourceModel):
     """Represents an Accela module."""
 
-    address_types: Optional[List[Dict[str, Any]]] = None
-    text: Optional[str] = None
-    value: Optional[str] = None
+    text: str
+    value: str
     raw_json: Dict[str, Any] = field(default_factory=dict)
+
+    address_types: Optional[List[Dict[str, Any]]] = None
 
     FIELD_MAPPING = {
         "addressTypes": "address_types",
@@ -19,7 +20,7 @@ class Module(ResourceModel):
         "value": "value",
     }
 
-    JSON_FIELDS = [
+    DICT_FIELDS = [
         "addressTypes",
     ]
 
@@ -36,4 +37,4 @@ class Modules(BaseResource):
         """
         url = f"{self.client.BASE_URL}/settings/modules"
         result = self._get(url)
-        return [Module.from_json(item) for item in result["result"]]
+        return [Module.from_json(item, self.client) for item in result["result"]]
