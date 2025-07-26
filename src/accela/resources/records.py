@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
-from datetime import datetime
-from typing import Any, Dict, List, Optional
+from datetime import date, datetime
+from typing import Any, Dict, List, Optional, Union
 
 from .base import BaseResource, ListResponse, ResourceModel
 
@@ -222,24 +222,24 @@ class Records(BaseResource):
             self,
             limit: int = 100,
             offset: int = 0,
-            type: Optional[str] = None,
-            opened_date_from: Optional[datetime] = None,
-            opened_date_to: Optional[datetime] = None,
+            type: Optional[str] = None,  # noqa
+            opened_date_from: Optional[Union[date, datetime]] = None,
+            opened_date_to: Optional[Union[date, datetime]] = None,
             custom_id: Optional[str] = None,
             module: Optional[str] = None,
             status: Optional[str] = None,
             assigned_to_department: Optional[str] = None,
             assigned_user: Optional[str] = None,
-            assigned_date_from: Optional[datetime] = None,
-            assigned_date_to: Optional[datetime] = None,
-            completed_date_from: Optional[datetime] = None,
-            completed_date_to: Optional[datetime] = None,
-            status_date_from: Optional[datetime] = None,
-            status_date_to: Optional[datetime] = None,
+            assigned_date_from: Optional[Union[date, datetime]] = None,
+            assigned_date_to: Optional[Union[date, datetime]] = None,
+            completed_date_from: Optional[Union[date, datetime]] = None,
+            completed_date_to: Optional[Union[date, datetime]] = None,
+            status_date_from: Optional[Union[date, datetime]] = None,
+            status_date_to: Optional[Union[date, datetime]] = None,
             completed_by_department: Optional[str] = None,
             completed_by_user: Optional[str] = None,
-            closed_date_from: Optional[datetime] = None,
-            closed_date_to: Optional[datetime] = None,
+            closed_date_from: Optional[Union[date, datetime]] = None,
+            closed_date_to: Optional[Union[date, datetime]] = None,
             closed_by_department: Optional[str] = None,
             closed_by_user: Optional[str] = None,
             record_class: Optional[str] = None,
@@ -251,23 +251,23 @@ class Records(BaseResource):
             limit: Number of records per page, default 100
             offset: Starting offset for pagination, default 0
             type: Filter by record type
-            opened_date_from: Filter by the record's open date range, beginning with this datetime
-            opened_date_to: Filter by the record's open date range, ending with this datetime
+            opened_date_from: Filter by the record's open date range, beginning with this date/datetime
+            opened_date_to: Filter by the record's open date range, ending with this date/datetime
             custom_id: Filter by the record custom id
             module: Filter by module
             status: Filter by record status
             assigned_to_department: Filter by the assigned department
             assigned_user: Filter by the assigned user
-            assigned_date_from: Filter by the record's assigned date range starting with this datetime
-            assigned_date_to: Filter by the record's assigned date range ending with this datetime
-            completed_date_from: Filter by the record's completed date range starting with this datetime
-            completed_date_to: Filter by the record's completed date range ending with this datetime
-            status_date_from: Filter by the record's status date range starting with this datetime
-            status_date_to: Filter by the record's status date range ending with this datetime
-            completed_by_department: Filter by the deparment which completed the application
+            assigned_date_from: Filter by the record's assigned date range starting with this date/datetime
+            assigned_date_to: Filter by the record's assigned date range ending with this date/datetime
+            completed_date_from: Filter by the record's completed date range starting with this date/datetime
+            completed_date_to: Filter by the record's completed date range ending with this date/datetime
+            status_date_from: Filter by the record's status date range starting with this date/datetime
+            status_date_to: Filter by the record's status date range ending with this date/datetime
+            completed_by_department: Filter by the department which completed the application
             completed_by_user: Filter by the user who completed the application
-            closed_date_from: Filter by the record's closed date range starting with this datetime
-            closed_date_to: Filter by the record's closed date range ending with this datetime
+            closed_date_from: Filter by the record's closed date range starting with this date/datetime
+            closed_date_to: Filter by the record's closed date range ending with this date/datetime
             closed_by_department: Filter by the department which closed the application
             closed_by_user: Filter by the user who closed the application
             record_class: Filter by record class
@@ -279,9 +279,19 @@ class Records(BaseResource):
         params: Dict[str, Any] = {"limit": limit, "offset": offset}
 
         def format_date_param(date_param):
-            if date_param is not None:
-                return date_param.isoformat()
-            return date_param
+            if date_param is None:
+                return None
+
+            # Convert date to datetime if needed
+            if isinstance(date_param, date) and not isinstance(date_param, datetime):
+                # Convert date to datetime at start of day
+                date_param = datetime.combine(date_param, datetime.min.time())
+
+            # If datetime is timezone-naive and client has timezone, make it timezone-aware
+            if isinstance(date_param, datetime) and date_param.tzinfo is None and self.client.timezone:
+                date_param = date_param.replace(tzinfo=self.client.timezone)
+
+            return date_param.isoformat()
 
         filter_params = {
             "type": type,
