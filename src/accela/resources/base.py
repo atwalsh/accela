@@ -190,10 +190,31 @@ class ListResponse(Generic[T]):
 
 class BaseResource:
     """Base class for all Accela API resources."""
+    
+    # Override in subclasses to specify required client attributes
+    # For example, the /agencies/ endpoint requires a token, but not an environment or agency
+    REQUIRES_AGENCY = True
+    REQUIRES_ENVIRONMENT = True
 
     def __init__(self, client):
         """Initialize the resource with an AccelaClient instance."""
         self.client = client
+        self._validate_client_requirements()
+    
+    def _validate_client_requirements(self):
+        """Validate that the client has required attributes for this resource."""
+        if self.REQUIRES_AGENCY and not self.client.agency:
+            raise ValueError(
+                f"{self.__class__.__name__} requires an agency. "
+                f"Initialize AccelaClient with agency parameter: "
+                f"AccelaClient(access_token='...', agency='AGENCY_NAME', environment='ENV')"
+            )
+        if self.REQUIRES_ENVIRONMENT and not self.client.environment:
+            raise ValueError(
+                f"{self.__class__.__name__} requires an environment. "
+                f"Initialize AccelaClient with environment parameter: "
+                f"AccelaClient(access_token='...', agency='AGENCY_NAME', environment='ENV')"
+            )
 
     def _get(self, url: str, params: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """Make a GET request to the Accela API.

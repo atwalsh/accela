@@ -1,6 +1,7 @@
 from typing import ClassVar, Dict, Optional, Type
 from zoneinfo import ZoneInfo
 
+from .resources.agencies import Agencies
 from .resources.base import BaseResource
 from .resources.documents import Documents
 from .resources.modules import Modules
@@ -18,6 +19,7 @@ class AccelaClient:
 
     # Define resource classes to be automatically initialized
     RESOURCE_CLASSES: ClassVar[Dict[str, Type[BaseResource]]] = {
+        "agencies": Agencies,
         "records": Records,
         "record_addresses": RecordAddresses,
         "record_documents": RecordDocuments,
@@ -28,6 +30,7 @@ class AccelaClient:
     }
 
     # Hinting
+    agencies: Agencies
     records: Records
     record_addresses: RecordAddresses
     record_documents: RecordDocuments
@@ -39,8 +42,8 @@ class AccelaClient:
     def __init__(
             self,
             access_token: str,
-            agency: str,
-            environment: str,
+            agency: Optional[str] = None,
+            environment: Optional[str] = None,
             timezone: Optional[ZoneInfo] = None,
     ):
         """
@@ -48,8 +51,8 @@ class AccelaClient:
 
         Args:
             access_token: Accela API access token
-            agency: Agency name; e.g. 'CHARLOTTE'
-            environment: Environment name; e.g. 'PROD'
+            agency: Optional agency name; e.g. 'CHARLOTTE'. Required for agency-specific resources.
+            environment: Optional environment name; e.g. 'PROD'. Required for agency-specific resources.
             timezone: Optional timezone for converting naive datetime strings from API to timezone-aware datetimes
         """
         self.access_token = access_token
@@ -57,13 +60,17 @@ class AccelaClient:
         self.environment = environment
         self.timezone = timezone
 
-        # Initialize all resources
-        self._init_resources()
+        # Store resource classes for lazy initialization
+        self._resource_instances = {}
 
-    def _init_resources(self) -> None:
-        """Initialize all resource classes."""
-        for name, resource_class in self.RESOURCE_CLASSES.items():
-            setattr(self, name, resource_class(self))
+    def __getattr__(self, name: str):
+        """Lazy initialization of resources when accessed."""
+        if name in self.RESOURCE_CLASSES:
+            if name not in self._resource_instances:
+                resource_class = self.RESOURCE_CLASSES[name]
+                self._resource_instances[name] = resource_class(self)
+            return self._resource_instances[name]
+        raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
 
     def register_resource(self, name: str, resource_class: Type[BaseResource]) -> None:
         """Register a new resource class with the client.
@@ -73,13 +80,21 @@ class AccelaClient:
             resource_class: Resource class to instantiate
         """
         self.RESOURCE_CLASSES[name] = resource_class
-        setattr(self, name, resource_class(self))
+        # Clear cached instance if it exists
+        if name in self._resource_instances:
+            del self._resource_instances[name]
 
     @property
     def headers(self) -> Dict[str, str]:
         """Default headers for Accela API requests."""
-        return {
+        headers = {
             "Authorization": self.access_token,
-            "x-accela-agency": self.agency,
-            "x-accela-environment": self.environment,
         }
+        
+        # Only include agency and environment headers if they are provided
+        if self.agency:
+            headers["x-accela-agency"] = self.agency
+        if self.environment:
+            headers["x-accela-environment"] = self.environment
+            
+        return headers
