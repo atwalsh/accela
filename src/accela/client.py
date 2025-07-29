@@ -2,6 +2,7 @@ from typing import ClassVar, Dict, Optional, Type
 from zoneinfo import ZoneInfo
 
 from .resources.agencies import Agencies
+from .resources.agency_environments import AgencyEnvironments
 from .resources.base import BaseResource
 from .resources.documents import Documents
 from .resources.modules import Modules
@@ -20,6 +21,7 @@ class AccelaClient:
     # Define resource classes to be automatically initialized
     RESOURCE_CLASSES: ClassVar[Dict[str, Type[BaseResource]]] = {
         "agencies": Agencies,
+        "agency_environments": AgencyEnvironments,
         "records": Records,
         "record_addresses": RecordAddresses,
         "record_documents": RecordDocuments,
@@ -31,6 +33,7 @@ class AccelaClient:
 
     # Hinting
     agencies: Agencies
+    agency_environments: AgencyEnvironments
     records: Records
     record_addresses: RecordAddresses
     record_documents: RecordDocuments
